@@ -10,13 +10,14 @@ class Database {
     public function connect() {
         if ($this->connection === null) {
             try {
+                // Pastikan port 3307 sesuai dengan setting MySQL di XAMPP
                 $this->connection = new PDO(
                     "mysql:host={$this->host};port=3307;dbname={$this->db_name};charset=utf8",
                     $this->username,
                     $this->password
                 );
                 $this->connection->setAttribute(
-                    PDO::ATTR_ERRMODE,
+                    PDO::ATTR_ERRMODE, 
                     PDO::ERRMODE_EXCEPTION
                 );
                 $this->connection->setAttribute(
