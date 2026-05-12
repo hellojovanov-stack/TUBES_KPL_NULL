@@ -338,6 +338,7 @@ class AuthController {
 ```
 
 ***/backend/controllers ObatController.php***
+```
 <?php
 
 require\_once \_\_DIR\_\_ . '/../models/Obat.php';
