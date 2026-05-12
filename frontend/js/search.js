@@ -1,5 +1,4 @@
 const SEARCH_STATE = {
-
     IDLE: "IDLE",
     LOADING: "LOADING",
     SUCCESS: "SUCCESS",
@@ -7,156 +6,76 @@ const SEARCH_STATE = {
     ERROR: "ERROR"
 };
 
-let currentSearchState =
-    SEARCH_STATE.IDLE;
-
-/*
-|--------------------------------------------------------------------------
-| SEARCH OBAT
-|--------------------------------------------------------------------------
-*/
+let currentSearchState = SEARCH_STATE.IDLE;
 
 async function searchObat() {
-
-    const keyword =
-        document.getElementById("searchInput")
-        .value
-        .trim();
+    const keyword = document.getElementById("searchInput").value.trim();
 
     if (!keyword) {
-
-        setSearchState(
-            SEARCH_STATE.EMPTY
-        );
-
+        setSearchState(SEARCH_STATE.EMPTY);
         renderEmpty();
-
         return;
     }
 
-    setSearchState(
-        SEARCH_STATE.LOADING
-    );
+    setSearchState(SEARCH_STATE.LOADING);
 
     try {
+        // PAKAI API BARU (bukan ke routes lagi)
+        const response = await fetch(`../../backend/api/search.php?keyword=${encodeURIComponent(keyword)}`);
+        const result = await response.json();
 
-        const response = await fetch(
-            `../../backend/routes/obat.php?action=search&keyword=${encodeURIComponent(keyword)}`
-        );
-
-        const data =
-            await response.json();
-
-        if (data.length === 0) {
-
-            setSearchState(
-                SEARCH_STATE.EMPTY
-            );
-
+        if (!result.success || result.total === 0) {
+            setSearchState(SEARCH_STATE.EMPTY);
             renderEmpty();
-
             return;
         }
 
-        setSearchState(
-            SEARCH_STATE.SUCCESS
-        );
-
-        renderData(data);
+        setSearchState(SEARCH_STATE.SUCCESS);
+        renderData(result.data);
 
     } catch (error) {
-
-        setSearchState(
-            SEARCH_STATE.ERROR
-        );
-
+        console.error("Search error:", error);
+        setSearchState(SEARCH_STATE.ERROR);
         renderError();
     }
 }
 
-/*
-|--------------------------------------------------------------------------
-| FSM STATE
-|--------------------------------------------------------------------------
-*/
-
 function setSearchState(state) {
-
     currentSearchState = state;
-
-    const status =
-        document.getElementById("status");
-
-    status.innerText =
-        `STATE : ${state}`;
+    const status = document.getElementById("searchStatus");
+    if (status) {
+        status.innerText = `STATE : ${state}`;
+    }
+    console.log(`STATE : ${state}`);
 }
 
-/*
-|--------------------------------------------------------------------------
-| RENDER DATA
-|--------------------------------------------------------------------------
-*/
-
 function renderData(data) {
-
-    const result =
-        document.getElementById("result");
-
+    const result = document.getElementById("searchResult");
+    if (!result) return;
+    
     result.innerHTML = "";
-
     data.forEach(obat => {
-
         result.innerHTML += `
-
             <div class="bg-white rounded-2xl p-5 border border-slate-200">
-
-                <h3 class="font-bold text-slate-800 text-lg">
-                    ${obat.nama_obat}
-                </h3>
-
-                <p class="text-slate-500 text-sm mt-1">
-                    ${obat.kategori}
-                </p>
-
-                <div class="mt-3 text-emerald-600 font-bold">
-                    Stok : ${obat.stok}
-                </div>
-
+                <h3 class="font-bold text-slate-800 text-lg">${obat.nama_obat}</h3>
+                <p class="text-slate-500 text-sm mt-1">${obat.kategori}</p>
+                <div class="mt-3 text-emerald-600 font-bold">Stok : ${obat.stok}</div>
+                <div class="text-emerald-600">Rp ${obat.harga.toLocaleString('id-ID')}</div>
             </div>
         `;
     });
 }
 
-/*
-|--------------------------------------------------------------------------
-| EMPTY
-|--------------------------------------------------------------------------
-*/
-
 function renderEmpty() {
-
-    document.getElementById("result")
-        .innerHTML =
-        `
-        <div class="text-slate-400 text-center py-10">
-            Data tidak ditemukan
-        </div>
-        `;
+    const result = document.getElementById("searchResult");
+    if (result) {
+        result.innerHTML = `<div class="text-slate-400 text-center py-10">Data tidak ditemukan</div>`;
+    }
 }
 
-/*
-|--------------------------------------------------------------------------
-| ERROR
-|--------------------------------------------------------------------------
-*/
-
 function renderError() {
-
-    document.getElementById("result")
-        .innerHTML =
-        `
-        <div class="text-red-500 text-center py-10">
-            Terjadi kesalahan sistem
-        </div>
-        `;
+    const result = document.getElementById("searchResult");
+    if (result) {
+        result.innerHTML = `<div class="text-red-500 text-center py-10">Terjadi kesalahan sistem</div>`;
+    }
 }
