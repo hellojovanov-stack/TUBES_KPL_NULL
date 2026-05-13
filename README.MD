@@ -12,6 +12,9 @@ Struktur Folder
 TUBES_KPL_NULL/
 │
 ├── backend/
+│   ├── api/
+│   │   ├── search.php               
+│   │   └── transaction.php         
 │   │
 │   ├── config/
 │   │   └── Database.php
@@ -19,57 +22,55 @@ TUBES_KPL_NULL/
 │   ├── controllers/
 │   │   ├── AuthController.php
 │   │   ├── ObatController.php
+│   │   ├── PerformanceTestController.php
 │   │   └── TransaksiController.php
 │   │
-│   ├── models/
-│   │   ├── Database.php
-│   │   ├── User.php
-│   │   ├── Obat.php
-│   │   └── Transaction.php
-│   │
-│   ├── routes/
-│   │   ├── login.php
-│   │   ├── logout.php
-│   │   ├── obat.php
-│   │   └── transaction.php
+│   ├── data/
+│   │   ├── obat.json
+│   │   └── transaksi.json
 │   │
 │   ├── helpers/
-│   │   ├── Validasi.php
+│   │   ├── Performance.php
+│   │   ├── PerformanceLogger.php
 │   │   ├── Response.php
-│   │   └── Performance.php
+│   │   └── Validator.php
 │   │
 │   ├── middleware/
 │   │   └── AuthMiddleware.php
 │   │
+│   ├── models/
+│   │   ├── Obat.php
+│   │   ├── Transaksi.php
+│   │   └── User.php
+│   │
+│   ├── routes/
+│   │   ├── auth.php
+│   │   ├── login.php
+│   │   ├── logout.php
+│   │   ├── obat.php
+│   │   ├── performance.php
+│   │   └── transaksi.php
+│   │
 │   └── tests/
 │       ├── AuthTest.php
-│       ├── ObatTest.php
 │       ├── LoginTest.php
-│       └── ObatTest.php
+│       ├── ObatTest.php
+│       └── PerformanceTest.php
 │
 ├── frontend/
-│   │
-│   ├── pages/
-│   │   ├── login.php
-│   │   ├── dashboard.php
-│   │   ├── transaksi.php
-│   │   ├── logout.php
-│   │   └── update.php
+│   ├── css/
+│   │   └── style.css
 │   │
 │   ├── js/
 │   │   ├── login.js
 │   │   ├── modal.js
-│   │   ├── search.js
-│   │   └── transaction.js
+│   │   ├── search.js               
+│   │   └── transaction.js         
 │   │
-│   ├── css/
-│   │   └── style.css
-│   │
-│   └── uploads/
-│
-├── database/
-│   │
-│   └── apotek_db.sql
+│   └── pages/
+│       ├── dashboard.php
+│       ├── login.php
+│       └── transaksi.php
 │
 ├── index.php
 │
