@@ -52,7 +52,7 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login Apotek</title>
+    <title>Login SIPOLA</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
 
@@ -85,8 +85,8 @@ if (isset($_POST['login'])) {
                 Login
             </h1>
 
-            <p class="text-slate-500 mt-2">
-                Apotek Sehat - Management System
+            <p class="text-slate-500 mt-2 font-medium leading-relaxed">
+                SIPOLA - Sistem Informasi Pengelolaan<br>Obat dan Layanan Apotek
             </p>
 
         </div>
