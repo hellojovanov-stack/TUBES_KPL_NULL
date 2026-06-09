@@ -1,0 +1,295 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+*{
+    margin:0;
+    padding:0;
+    box-sizing:border-box;
+}
+
+body{
+    font-family:'Inter',sans-serif;
+    background:#f8fafc;
+    color:#1e293b;
+}
+
+/* LOGIN */
+
+.login-body{
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background:linear-gradient(135deg,#10b981,#0f766e);
+    padding:20px;
+}
+
+.login-card{
+    width:100%;
+    max-width:430px;
+    background:white;
+    padding:40px;
+    border-radius:30px;
+    box-shadow:0 25px 50px rgba(0,0,0,0.15);
+}
+
+.logo-box{
+    width:80px;
+    height:80px;
+    background:#d1fae5;
+    border-radius:24px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin:auto;
+    margin-bottom:20px;
+    font-size:35px;
+}
+
+.login-title{
+    text-align:center;
+    font-size:32px;
+    font-weight:800;
+    margin-bottom:10px;
+}
+
+.login-subtitle{
+    text-align:center;
+    color:#64748b;
+    margin-bottom:30px;
+}
+
+.form-group{
+    margin-bottom:20px;
+}
+
+.form-group label{
+    display:block;
+    font-weight:600;
+    margin-bottom:8px;
+}
+
+.form-input{
+    width:100%;
+    padding:15px;
+    border-radius:16px;
+    border:1px solid #cbd5e1;
+    background:#f8fafc;
+    outline:none;
+    transition:0.3s;
+}
+
+.form-input:focus{
+    border-color:#10b981;
+    background:white;
+}
+
+.primary-btn{
+    width:100%;
+    padding:16px;
+    border:none;
+    border-radius:18px;
+    background:#10b981;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.primary-btn:hover{
+    background:#059669;
+}
+
+.message{
+    margin-top:15px;
+    text-align:center;
+    color:red;
+}
+
+/* NAVBAR */
+
+.navbar{
+    background:white;
+    padding:20px 40px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    border-bottom:1px solid #e2e8f0;
+}
+
+.brand{
+    font-size:26px;
+    font-weight:900;
+    color:#10b981;
+}
+
+.nav-links{
+    display:flex;
+    gap:20px;
+}
+
+.nav-links a{
+    text-decoration:none;
+    color:#475569;
+    font-weight:600;
+}
+
+.nav-links a.active{
+    color:#10b981;
+}
+
+/* DASHBOARD */
+
+.container{
+    max-width:1200px;
+    margin:auto;
+    padding:40px 20px;
+}
+
+.search-card{
+    background:white;
+    border-radius:30px;
+    padding:40px;
+    margin-bottom:40px;
+    box-shadow:0 5px 15px rgba(0,0,0,0.05);
+}
+
+.search-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:25px;
+}
+
+.status-badge{
+    background:#f1f5f9;
+    padding:8px 18px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:800;
+}
+
+.search-box{
+    display:flex;
+    gap:15px;
+}
+
+.search-box input{
+    flex:1;
+    padding:16px;
+    border-radius:18px;
+    border:1px solid #cbd5e1;
+    background:#f8fafc;
+}
+
+.search-box button{
+    padding:16px 30px;
+    border:none;
+    border-radius:18px;
+    background:#10b981;
+    color:white;
+    font-weight:700;
+    cursor:pointer;
+}
+
+/* RESULT */
+
+.result-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+    gap:20px;
+}
+
+.obat-card{
+    background:white;
+    padding:25px;
+    border-radius:28px;
+    border:1px solid #e2e8f0;
+    transition:0.3s;
+}
+
+.obat-card:hover{
+    transform:translateY(-5px);
+    box-shadow:0 15px 30px rgba(16,185,129,0.15);
+}
+
+.obat-card h3{
+    font-size:22px;
+    margin-bottom:10px;
+}
+
+.stok{
+    font-size:32px;
+    font-weight:900;
+    color:#10b981;
+}
+
+/* TRANSAKSI */
+
+.transaction-card{
+    background:white;
+    padding:40px;
+    border-radius:30px;
+}
+
+.trx-status{
+    display:inline-block;
+    padding:12px 20px;
+    border-radius:18px;
+    font-weight:800;
+    background:#f1f5f9;
+}
+
+.button-group{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:15px;
+    margin-top:30px;
+}
+
+.checkout-btn{
+    background:#4f46e5;
+}
+
+.pay-btn{
+    background:#10b981;
+}
+
+.cancel-btn{
+    background:#fee2e2;
+    color:#dc2626;
+}
+
+.action-btn{
+    padding:18px;
+    border:none;
+    border-radius:18px;
+    font-weight:800;
+    cursor:pointer;
+}
+
+/* CUSTOM SCROLLBAR */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #10b981;
+    border-radius: 10px;
+    border: 2px solid #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #059669;
+}
+
+/* MODAL STROKE */
+div[id*="modal"] > div.bg-white, 
+div[id*="Modal"] > div.bg-white {
+    border: 3px solid #10b981;
+}
