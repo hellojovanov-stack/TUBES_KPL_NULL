@@ -18,252 +18,209 @@ $hariIni = count(array_filter($data, fn($r) => isset($r['tanggal']) && str_start
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Riwayat Transaksi - SIPOLA</title>
+    <title>Riwayat Transaksi | SIPOLA</title>
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
+
+    <link rel="stylesheet" href="../css/style1.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        body { font-family: 'Inter', sans-serif; }
-        @keyframes fadeIn { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-        .fade-in { animation: fadeIn .3s ease forwards; }
-        @keyframes modalIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
-        .modal-anim { animation: modalIn .2s ease forwards; }
         @media print {
             #printArea { display: block !important; }
-            body > *:not(#printOverlay) { display: none; }
-            #printOverlay { display: block !important; position: static !important; background: white !important; }
+            body > *:not(#printOverlay) { display: none !important; }
+            #printOverlay { display: block !important; position: static !important; background: white !important; z-index: 9999; width: 100%; height: 100%; }
         }
     </style>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
 
-<!-- NAVBAR -->
-<nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="relative bg-gradient-to-br from-emerald-500 to-teal-700 w-10 h-10 rounded-xl shadow-md flex items-center justify-center border border-white/20 overflow-hidden group">
-                <div class="absolute -top-3 -right-3 w-8 h-8 bg-white opacity-10 rounded-full blur-sm group-hover:scale-150 transition-transform duration-700"></div>
-                <div class="absolute -bottom-2 -left-2 w-6 h-6 bg-teal-300 opacity-20 rounded-full blur-sm group-hover:scale-150 transition-transform duration-700"></div>
-                <i class="fa-solid fa-capsules text-white text-lg relative z-10 drop-shadow-md transform group-hover:rotate-12 transition-transform duration-300"></i>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-emerald-600 font-black text-xl uppercase tracking-tighter leading-none mt-1">SIPOLA</span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase hidden lg:block mt-0.5">Sistem Informasi Pengelolaan Obat dan Layanan Apotek</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Dashboard</a>
-            <a href="kategori.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Kategori</a>
-            <a href="supplier.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Supplier</a>
-            <a href="transaksi.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Transaksi</a>
-            <a href="riwayat.php" class="text-emerald-600 font-bold border-b-2 border-emerald-600 pb-1">Riwayat</a>
-            <a href="logout.php" class="text-slate-500 hover:text-red-500 font-medium transition-colors">Logout</a>
-        </div>
-    </div>
-</nav>
+<div class="app-layout">
 
-<main class="max-w-6xl mx-auto px-6 py-10">
+    <?php include 'sidebar.php'; ?>
 
-    <!-- HEADER -->
-    <div class="bg-gradient-to-r from-indigo-600 to-violet-600 rounded-3xl p-8 mb-8 text-white relative overflow-hidden">
-        <div class="absolute -right-8 -top-8 w-48 h-48 bg-white/10 rounded-full"></div>
-        <div class="absolute right-20 -bottom-6 w-32 h-32 bg-white/10 rounded-full"></div>
-        <div class="relative">
-            <p class="text-indigo-200 text-sm font-semibold tracking-widest uppercase mb-1">Laporan Penjualan</p>
-            <h1 class="text-4xl font-black mb-2">Riwayat Transaksi</h1>
-            <p class="text-indigo-200 text-sm">Pantau semua aktivitas transaksi yang telah dilakukan di apotek.</p>
-        </div>
-    </div>
+    <main class="main-content">
 
-    <!-- STATS CARDS -->
-    <div class="grid grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm fade-in">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-clipboard-list"></i></div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Transaksi</span>
+        <header class="page-header animate-fade">
+            <div>
+                <h1>Riwayat Transaksi</h1>
+                <p>Pantau semua laporan aktivitas penjualan apotek</p>
             </div>
-            <div class="text-3xl font-black text-slate-800"><?= $totalTransaksi ?></div>
-            <div class="text-xs text-slate-400 mt-1">semua waktu</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm fade-in">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-money-bill-wave"></i></div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Total Pendapatan</span>
+            <div class="header-actions hidden md:flex">
+                <button class="btn-icon" title="Cetak Laporan Lengkap" onclick="window.print()"><i class="fas fa-print"></i></button>
             </div>
-            <div class="text-2xl font-black text-emerald-600">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></div>
-            <div class="text-xs text-slate-400 mt-1">kumulatif</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm fade-in">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-amber-50 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-chart-bar"></i></div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Rata-rata</span>
-            </div>
-            <div class="text-2xl font-black text-amber-600">Rp <?= number_format($rataRata, 0, ',', '.') ?></div>
-            <div class="text-xs text-slate-400 mt-1">per transaksi</div>
-        </div>
-        <div class="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm fade-in">
-            <div class="flex items-center gap-3 mb-3">
-                <div class="w-10 h-10 bg-rose-50 rounded-xl flex items-center justify-center text-xl"><i class="fas fa-calendar-alt"></i></div>
-                <span class="text-xs font-bold text-slate-500 uppercase tracking-wider">Hari Ini</span>
-            </div>
-            <div class="text-3xl font-black text-rose-600"><?= $hariIni ?></div>
-            <div class="text-xs text-slate-400 mt-1">transaksi</div>
-        </div>
-    </div>
+        </header>
 
-    <!-- FILTER & SEARCH BAR -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 mb-6 flex flex-wrap gap-3 items-center">
-        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
-            <svg class="w-4 h-4 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-            </svg>
-            <input id="searchKasir" type="text" placeholder="Cari kasir..." oninput="filterTable()"
-                class="flex-1 outline-none text-slate-700 placeholder-slate-400 text-sm bg-transparent">
+        <div class="stat-grid animate-fade" style="animation-delay: 0.1s; animation-fill-mode: both;">
+            <div class="stat-card">
+                <div class="w-12 h-12 bg-[var(--mint-cream)] text-[var(--jungle-teal)] rounded-2xl flex items-center justify-center text-xl shadow-sm mb-3">
+                    <i class="fas fa-clipboard-list"></i>
+                </div>
+                <div class="stat-label">Total Transaksi</div>
+                <div class="stat-value text-slate-800"><?= $totalTransaksi ?></div>
+            </div>
+            <div class="stat-card bg-gradient-to-br from-[var(--jungle-teal)] to-[var(--primary-dark)] text-white border-transparent">
+                <div class="w-12 h-12 bg-white/20 text-white rounded-2xl flex items-center justify-center text-xl shadow-sm mb-3">
+                    <i class="fas fa-money-bill-wave"></i>
+                </div>
+                <div class="stat-label text-emerald-100">Total Pendapatan</div>
+                <div class="text-2xl font-black mt-1 text-white">Rp <?= number_format($totalPendapatan, 0, ',', '.') ?></div>
+            </div>
+            <div class="stat-card">
+                <div class="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center text-xl shadow-sm mb-3">
+                    <i class="fas fa-chart-bar"></i>
+                </div>
+                <div class="stat-label">Rata-rata Transaksi</div>
+                <div class="text-2xl font-black mt-1 text-amber-600">Rp <?= number_format($rataRata, 0, ',', '.') ?></div>
+            </div>
+            <div class="stat-card">
+                <div class="w-12 h-12 bg-rose-50 text-rose-500 rounded-2xl flex items-center justify-center text-xl shadow-sm mb-3">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <div class="stat-label">Transaksi Hari Ini</div>
+                <div class="text-3xl font-black mt-1 text-rose-600"><?= $hariIni ?></div>
+            </div>
         </div>
-        <div class="flex items-center gap-2">
-            <label class="text-xs font-semibold text-slate-500">Dari:</label>
-            <input type="date" id="dateFrom" onchange="filterTable()" class="border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400">
-        </div>
-        <div class="flex items-center gap-2">
-            <label class="text-xs font-semibold text-slate-500">Sampai:</label>
-            <input type="date" id="dateTo" onchange="filterTable()" class="border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none focus:border-indigo-400">
-        </div>
-        <button onclick="resetFilter()" class="text-xs font-bold text-slate-500 hover:text-red-500 transition-colors px-3 py-2 rounded-xl hover:bg-red-50">Reset ↺</button>
-        <span id="rowCount" class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1.5 rounded-full ml-auto"><?= $totalTransaksi ?> data</span>
-    </div>
 
-    <!-- TABLE -->
-    <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-        <table class="w-full text-left border-collapse" id="riwayatTable">
-            <thead>
-                <tr class="bg-slate-50 border-b-2 border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                    <th class="px-5 py-4">No</th>
-                    <th class="px-5 py-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('tanggal')">Tanggal ↕</th>
-                    <th class="px-5 py-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('kasir')">Kasir ↕</th>
-                    <th class="px-5 py-4">Jumlah Item</th>
-                    <th class="px-5 py-4 cursor-pointer hover:text-indigo-600" onclick="sortTable('total')">Total Bayar ↕</th>
-                    <th class="px-5 py-4 text-center">Aksi</th>
-                </tr>
-            </thead>
-            <tbody id="tableBody">
-                <?php if (count($data) > 0): ?>
-                    <?php foreach($data as $i => $row): ?>
-                    <tr class="riwayat-row border-b border-slate-100 hover:bg-indigo-50/40 transition-colors"
-                        data-kasir="<?= strtolower(htmlspecialchars($row['kasir'])) ?>"
-                        data-tanggal="<?= $row['tanggal'] ?? '' ?>"
-                        data-total="<?= $row['total_bayar'] ?>">
-                        <td class="px-5 py-4 text-slate-400 font-mono text-sm"><?= $i+1 ?></td>
-                        <td class="px-5 py-4">
-                            <div class="font-semibold text-slate-800 text-sm"><?= date('d M Y', strtotime($row['tanggal'])) ?></div>
-                            <div class="text-xs text-slate-400"><?= date('H:i', strtotime($row['tanggal'])) ?> WIB</div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <div class="flex items-center gap-2">
-                                <div class="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center text-xs font-black uppercase">
-                                    <?= strtoupper(substr($row['kasir'], 0, 1)) ?>
+        <div class="card p-4 mb-6 flex flex-wrap gap-4 items-center animate-fade" style="animation-delay: 0.2s; animation-fill-mode: both;">
+            <div class="flex items-center gap-2 flex-1 min-w-[200px] bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+                <i class="fas fa-search text-slate-400"></i>
+                <input id="searchKasir" type="text" placeholder="Cari nama kasir..." oninput="filterTable()" class="flex-1 outline-none text-slate-700 placeholder-slate-400 bg-transparent text-sm">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Dari:</label>
+                <input type="date" id="dateFrom" onchange="filterTable()" class="form-control text-sm py-2 w-auto">
+            </div>
+            <div class="flex items-center gap-2">
+                <label class="text-xs font-bold text-slate-500 uppercase tracking-widest">Sampai:</label>
+                <input type="date" id="dateTo" onchange="filterTable()" class="form-control text-sm py-2 w-auto">
+            </div>
+            <button onclick="resetFilter()" class="btn btn-secondary py-2 px-4 text-sm font-bold bg-rose-50 text-rose-600 hover:bg-rose-100 border-rose-100">Reset Filter</button>
+            <span id="rowCount" class="text-xs font-bold text-[var(--success)] bg-[var(--mint-cream)] px-3 py-1.5 rounded-full ml-auto whitespace-nowrap"><?= $totalTransaksi ?> data</span>
+        </div>
+
+        <div class="card p-0 overflow-hidden animate-fade" style="animation-delay: 0.3s; animation-fill-mode: both;">
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse" id="riwayatTable">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                            <th class="px-6 py-4">No</th>
+                            <th class="px-6 py-4 cursor-pointer hover:text-[var(--jungle-teal)] transition-colors" onclick="sortTable('tanggal')">Waktu Transaksi <i class="fas fa-sort ml-1"></i></th>
+                            <th class="px-6 py-4 cursor-pointer hover:text-[var(--jungle-teal)] transition-colors" onclick="sortTable('kasir')">Nama Kasir <i class="fas fa-sort ml-1"></i></th>
+                            <th class="px-6 py-4">Jumlah Item</th>
+                            <th class="px-6 py-4 cursor-pointer hover:text-[var(--jungle-teal)] transition-colors" onclick="sortTable('total')">Total Pembayaran <i class="fas fa-sort ml-1"></i></th>
+                            <th class="px-6 py-4 text-center">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        <?php if (count($data) > 0): ?>
+                            <?php foreach($data as $i => $row): ?>
+                            <tr class="riwayat-row border-b border-slate-100 hover:bg-slate-50 transition-colors"
+                                data-kasir="<?= strtolower(htmlspecialchars($row['kasir'])) ?>"
+                                data-tanggal="<?= $row['tanggal'] ?? '' ?>"
+                                data-total="<?= $row['total_bayar'] ?>">
+                                <td class="px-6 py-4 text-slate-400 font-mono text-sm"><?= str_pad($i+1, 3, '0', STR_PAD_LEFT) ?></td>
+                                <td class="px-6 py-4">
+                                    <div class="font-bold text-slate-800 text-sm"><?= date('d M Y', strtotime($row['tanggal'])) ?></div>
+                                    <div class="text-xs font-medium text-slate-400 mt-0.5"><i class="far fa-clock mr-1"></i><?= date('H:i', strtotime($row['tanggal'])) ?> WIB</div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="w-8 h-8 rounded-full bg-[var(--azure-mist)] text-[var(--jungle-teal)] flex items-center justify-center text-xs font-black uppercase shadow-sm border border-white">
+                                            <?= strtoupper(substr($row['kasir'], 0, 1)) ?>
+                                        </div>
+                                        <span class="font-bold text-slate-700"><?= htmlspecialchars($row['kasir']) ?></span>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-full text-xs font-bold"><?= $row['jumlah_item'] ?> Item</span>
+                                </td>
+                                <td class="px-6 py-4">
+                                    <span class="font-black text-[var(--success)] text-base">Rp <?= number_format($row['total_bayar'], 0, ',', '.') ?></span>
+                                </td>
+                                <td class="px-6 py-4 text-center">
+                                    <button onclick="openDetailModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['kasir']) ?>', '<?= date('d M Y H:i', strtotime($row['tanggal'])) ?>', <?= $row['total_bayar'] ?>)"
+                                        class="btn btn-secondary py-2 px-4 text-xs inline-flex justify-center">
+                                        <i class="fas fa-file-invoice mr-1.5"></i> Detail
+                                    </button>
+                                </td>
+                            </tr>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <tr><td colspan="6" class="px-6 py-24 text-center text-slate-400 border-b-0">
+                                <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center text-2xl mx-auto mb-4">
+                                    <i class="fas fa-box-open text-2xl"></i>
                                 </div>
-                                <span class="font-semibold text-slate-700"><?= htmlspecialchars($row['kasir']) ?></span>
-                            </div>
-                        </td>
-                        <td class="px-5 py-4">
-                            <span class="bg-slate-100 text-slate-700 px-3 py-1 rounded-full text-xs font-bold"><?= $row['jumlah_item'] ?> item</span>
-                        </td>
-                        <td class="px-5 py-4">
-                            <span class="font-black text-emerald-600 text-base">Rp <?= number_format($row['total_bayar'], 0, ',', '.') ?></span>
-                        </td>
-                        <td class="px-5 py-4 text-center">
-                            <div class="flex gap-2 justify-center">
-                                <button onclick="openDetailModal(<?= $row['id'] ?>, '<?= htmlspecialchars($row['kasir']) ?>', '<?= date('d M Y H:i', strtotime($row['tanggal'])) ?>', <?= $row['total_bayar'] ?>)"
-                                    class="bg-indigo-50 text-indigo-600 px-3 py-1.5 rounded-xl text-xs font-bold hover:bg-indigo-100 transition-all">
-                                    <i class="fas fa-search"></i> Detail
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    <?php endforeach; ?>
-                <?php else: ?>
-                    <tr><td colspan="6" class="px-5 py-20 text-center text-slate-400">
-                        <div class="text-5xl mb-3"><i class="fas fa-box-open text-5xl mb-3"></i></div>
-                        <div class="font-semibold">Belum ada riwayat transaksi</div>
-                    </td></tr>
-                <?php endif; ?>
-            </tbody>
-        </table>
-
-        <!-- NO RESULTS -->
-        <div id="noResults" class="hidden px-5 py-16 text-center text-slate-400">
-            <div class="text-4xl mb-3"><i class="fas fa-search"></i></div>
-            <div class="font-semibold">Tidak ada data yang cocok</div>
-            <div class="text-sm mt-1">Coba ubah filter pencarian</div>
-        </div>
-    </div>
-
-</main>
-
-<!-- MODAL DETAIL -->
-<div id="detailModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-2xl m-auto rounded-3xl shadow-2xl overflow-hidden modal-anim flex flex-col max-h-[90vh] border-2 border-indigo-400">
-        <!-- Header -->
-        <div class="bg-gradient-to-r from-indigo-600 to-violet-600 p-6 text-white shrink-0">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h2 class="text-2xl font-black">Detail Transaksi</h2>
-                    <p class="text-indigo-200 text-sm mt-1" id="modal-subtitle">—</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button onclick="printDetail()" class="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1">
-                        <i class="fas fa-print"></i> Print
-                    </button>
-                    <button onclick="closeDetail()" class="text-white/80 hover:text-white text-3xl leading-none transition-all hover:scale-110 ml-2">×</button>
-                </div>
+                                <div class="font-semibold text-lg">Belum ada riwayat transaksi</div>
+                                <div class="text-sm mt-1">Data penjualan akan muncul di sini setelah transaksi kasir berhasil.</div>
+                            </td></tr>
+                        <?php endif; ?>
+                    </tbody>
+                </table>
             </div>
-            <!-- Info strip -->
-            <div class="flex gap-4 mt-4">
-                <div class="bg-white/20 rounded-xl px-3 py-2 text-xs">
-                    <span class="text-indigo-200">Kasir:</span>
-                    <span class="font-bold ml-1" id="modal-kasir">—</span>
-                </div>
-                <div class="bg-white/20 rounded-xl px-3 py-2 text-xs">
-                    <span class="text-indigo-200">Tanggal:</span>
-                    <span class="font-bold ml-1" id="modal-tanggal">—</span>
-                </div>
-                <div class="bg-white/20 rounded-xl px-3 py-2 text-xs">
-                    <span class="text-indigo-200">Total:</span>
-                    <span class="font-black ml-1 text-white" id="modal-total">—</span>
-                </div>
+
+            <div id="noResults" class="hidden px-6 py-16 text-center text-slate-400">
+                <div class="text-4xl mb-3 text-slate-200"><i class="fas fa-search"></i></div>
+                <div class="font-semibold text-lg">Tidak ada data yang cocok</div>
+                <div class="text-sm mt-1">Coba ubah filter pencarian tanggal atau nama kasir.</div>
             </div>
         </div>
-        <!-- Body -->
-        <div class="overflow-y-auto grow">
+
+    </main>
+</div>
+
+<div id="detailModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 600px; padding: 0;">
+
+        <div class="modal-header bg-[var(--jungle-teal)] text-white p-6 rounded-t-[var(--r-lg)]" style="margin: 0; border-radius: var(--r-xl) var(--r-xl) 0 0;">
+            <div>
+                <h2 class="text-white text-xl">Struk Pembayaran</h2>
+                <p class="text-[var(--mint-cream)] text-sm opacity-90 mt-1" id="modal-subtitle">—</p>
+            </div>
+            <div class="flex items-center gap-3">
+                <button onclick="printDetail()" class="bg-white/20 hover:bg-white/30 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5">
+                    <i class="fas fa-print"></i> Cetak Struk
+                </button>
+                <button onclick="closeDetail()" class="modal-close text-white hover:bg-white/10" style="background: transparent; color: white; border-radius: 50%;"><i class="fas fa-times"></i></button>
+            </div>
+        </div>
+
+        <div class="bg-[var(--primary-dark)] text-white px-6 py-4 flex justify-between gap-4 border-t border-white/10 shadow-inner">
+            <div>
+                <span class="text-[var(--muted-teal)] text-xs block mb-0.5">Kasir:</span>
+                <span class="font-bold text-sm" id="modal-kasir">—</span>
+            </div>
+            <div>
+                <span class="text-[var(--muted-teal)] text-xs block mb-0.5">Tanggal Transaksi:</span>
+                <span class="font-bold text-sm" id="modal-tanggal">—</span>
+            </div>
+        </div>
+
+        <div class="overflow-y-auto max-h-[50vh]">
             <table class="w-full text-left border-collapse">
                 <thead>
-                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider">
-                        <th class="px-5 py-3">Nama Obat</th>
-                        <th class="px-5 py-3 text-center">Qty</th>
-                        <th class="px-5 py-3 text-right">Subtotal</th>
+                    <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold text-slate-500 uppercase tracking-wider sticky top-0">
+                        <th class="px-6 py-4">Nama Produk Obat</th>
+                        <th class="px-6 py-4 text-center">Qty</th>
+                        <th class="px-6 py-4 text-right">Subtotal</th>
                     </tr>
                 </thead>
                 <tbody id="detail-body">
-                    <tr><td colspan="3" class="px-5 py-10 text-center text-slate-400">Memuat data...</td></tr>
+                    <tr><td colspan="3" class="px-6 py-10 text-center text-slate-400">Memuat rincian transaksi...</td></tr>
                 </tbody>
-                <tfoot id="detail-footer" class="hidden">
-                    <tr class="border-t-2 border-slate-200 bg-emerald-50">
-                        <td class="px-5 py-4 font-black text-slate-700" colspan="2">TOTAL PEMBAYARAN</td>
-                        <td class="px-5 py-4 font-black text-emerald-600 text-right text-lg" id="detail-total-footer">—</td>
-                    </tr>
-                </tfoot>
             </table>
         </div>
-        <!-- Footer -->
-        <div class="p-5 border-t border-slate-100 bg-slate-50 shrink-0 flex justify-between items-center">
-            <span class="text-xs text-slate-400">Data ditampilkan secara real-time dari sistem</span>
-            <button onclick="closeDetail()" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-xl font-bold transition-all text-sm">Tutup</button>
+
+        <div id="detail-footer" class="hidden">
+            <div class="bg-[var(--mint-cream)] border-t-2 border-[var(--jungle-teal)] px-6 py-5 flex justify-between items-center rounded-b-[var(--r-xl)]">
+                <span class="font-black text-slate-700 uppercase tracking-wider">Total Tagihan</span>
+                <span class="font-black text-[var(--jungle-teal)] text-2xl" id="detail-total-footer">—</span>
+            </div>
         </div>
     </div>
 </div>
 
-<!-- PRINT AREA (hidden, only for print) -->
 <div id="printOverlay" style="display:none;">
     <div id="printArea"></div>
 </div>
@@ -274,13 +231,12 @@ let sortDir = {};
 let currentPrintData = null;
 
 function openDetailModal(id, kasir, tanggal, total) {
-    document.getElementById('detailModal').classList.remove('hidden');
-    document.getElementById('modal-subtitle').textContent = 'ID Riwayat: #' + id;
+    document.getElementById('detailModal').classList.add('active');
+    document.getElementById('modal-subtitle').textContent = 'ID Riwayat: #' + String(id).padStart(5, '0');
     document.getElementById('modal-kasir').textContent = kasir;
     document.getElementById('modal-tanggal').textContent = tanggal;
-    document.getElementById('modal-total').textContent = 'Rp ' + parseInt(total).toLocaleString('id-ID');
     document.getElementById('detail-footer').classList.add('hidden');
-    document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-5 py-10 text-center text-slate-400"><i class="fas fa-hourglass-half"></i> Memuat...</td></tr>';
+    document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-slate-400"><i class="fas fa-circle-notch fa-spin text-2xl mb-3 block"></i> Memuat Data...</td></tr>';
 
     fetch(`${API_BASE}/transaksi.php?id_riwayat=${id}`)
         .then(r => r.json())
@@ -289,48 +245,74 @@ function openDetailModal(id, kasir, tanggal, total) {
                 let html = '', grandTotal = 0;
                 res.data.forEach(item => {
                     grandTotal += parseInt(item.sub_total);
-                    html += `<tr class="border-b border-slate-100 hover:bg-slate-50">
-                        <td class="px-5 py-3 font-semibold text-slate-700">${item.nama_obat || '(ID: '+item.id_obat+')'}</td>
-                        <td class="px-5 py-3 text-center"><span class="bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-lg text-xs font-bold">${item.jumlah}x</span></td>
-                        <td class="px-5 py-3 text-right font-bold text-slate-700">Rp ${parseInt(item.sub_total).toLocaleString('id-ID')}</td>
+                    html += `<tr class="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                        <td class="px-6 py-4 font-bold text-slate-700">${item.nama_obat || '(Item Dihapus - ID: '+item.id_obat+')'}</td>
+                        <td class="px-6 py-4 text-center">
+                            <span class="bg-slate-100 text-slate-600 px-3 py-1 rounded-lg text-xs font-black">${item.jumlah}x</span>
+                        </td>
+                        <td class="px-6 py-4 text-right font-black text-slate-800">Rp ${parseInt(item.sub_total).toLocaleString('id-ID')}</td>
                     </tr>`;
                 });
                 document.getElementById('detail-body').innerHTML = html;
                 document.getElementById('detail-total-footer').textContent = 'Rp ' + grandTotal.toLocaleString('id-ID');
                 document.getElementById('detail-footer').classList.remove('hidden');
-                currentPrintData = { kasir, tanggal, total, items: res.data };
+                currentPrintData = { id, kasir, tanggal, total, items: res.data };
             } else {
-                document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-5 py-10 text-center text-slate-400">Tidak ada item</td></tr>';
+                document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-slate-400">Tidak ada detail item</td></tr>';
             }
         })
         .catch(() => {
-            document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-5 py-10 text-center text-red-400">Gagal memuat data</td></tr>';
+            document.getElementById('detail-body').innerHTML = '<tr><td colspan="3" class="px-6 py-10 text-center text-red-400">Terjadi kesalahan memuat data.</td></tr>';
         });
 }
 
-function closeDetail() { document.getElementById('detailModal').classList.add('hidden'); }
+function closeDetail() { document.getElementById('detailModal').classList.remove('active'); }
 
 function printDetail() {
     if (!currentPrintData) return;
-    const { kasir, tanggal, total, items } = currentPrintData;
-    let rows = items.map(i => `<tr><td>${i.nama_obat||'ID:'+i.id_obat}</td><td style="text-align:center">${i.jumlah}x</td><td style="text-align:right">Rp ${parseInt(i.sub_total).toLocaleString('id-ID')}</td></tr>`).join('');
+    const { id, kasir, tanggal, total, items } = currentPrintData;
+    let rows = items.map(i => `<tr><td style="padding:4px 0">${i.nama_obat||'ID:'+i.id_obat}</td><td style="text-align:center">${i.jumlah}</td><td style="text-align:right">Rp ${parseInt(i.sub_total).toLocaleString('id-ID')}</td></tr>`).join('');
+    
     document.getElementById('printArea').innerHTML = `
-        <div style="font-family:monospace;max-width:320px;margin:auto;padding:20px;">
-            <h2 style="text-align:center;font-size:18px;font-weight:900;border-bottom:2px dashed #000;padding-bottom:8px;margin-bottom:12px;"><i class="fas fa-hospital"></i> SIPOLA</h2>
-            <div style="font-size:12px;margin-bottom:10px;">
-                <div><b>Kasir:</b> ${kasir}</div>
-                <div><b>Tanggal:</b> ${tanggal}</div>
+        <div style="font-family:monospace; max-width:300px; margin:0 auto; padding:20px 10px; color:#000;">
+            <div style="text-align:center; margin-bottom:15px; border-bottom:1px dashed #000; padding-bottom:10px;">
+                <h2 style="font-size:18px; font-weight:bold; margin:0 0 5px 0;">APOTEK SIPOLA</h2>
+                <p style="font-size:10px; margin:0;">Sistem Informasi Pengelolaan Obat</p>
             </div>
-            <table style="width:100%;font-size:12px;border-collapse:collapse;">
-                <thead><tr style="border-bottom:1px solid #000;"><th>Obat</th><th>Qty</th><th style="text-align:right">Harga</th></tr></thead>
-                <tbody>${rows}</tbody>
-                <tfoot><tr style="border-top:2px solid #000;font-weight:900;"><td colspan="2">TOTAL</td><td style="text-align:right">Rp ${parseInt(total).toLocaleString('id-ID')}</td></tr></tfoot>
+            
+            <div style="font-size:11px; margin-bottom:15px;">
+                <table style="width:100%;">
+                    <tr><td>No. Transaksi</td><td>: #${String(id).padStart(5, '0')}</td></tr>
+                    <tr><td>Kasir</td><td>: ${kasir.toUpperCase()}</td></tr>
+                    <tr><td>Waktu</td><td>: ${tanggal}</td></tr>
+                </table>
+            </div>
+            
+            <div style="border-top:1px dashed #000; border-bottom:1px dashed #000; padding:5px 0; margin-bottom:10px;">
+                <table style="width:100%; font-size:11px;">
+                    <thead><tr>
+                        <th style="text-align:left; padding-bottom:5px;">Item</th>
+                        <th style="text-align:center; padding-bottom:5px;">Qty</th>
+                        <th style="text-align:right; padding-bottom:5px;">Harga</th>
+                    </tr></thead>
+                    <tbody>${rows}</tbody>
+                </table>
+            </div>
+            
+            <table style="width:100%; font-size:12px; font-weight:bold; margin-bottom:20px;">
+                <tr><td colspan="2">TOTAL KEMBALI</td><td style="text-align:right;">Rp ${parseInt(total).toLocaleString('id-ID')}</td></tr>
             </table>
-            <p style="text-align:center;font-size:10px;margin-top:16px;border-top:1px dashed #000;padding-top:8px;">Terima kasih telah berbelanja!</p>
-        </div>`;
+            
+            <div style="text-align:center; font-size:10px; border-top:1px dashed #000; padding-top:10px;">
+                <p style="margin:0;">* TERIMA KASIH ATAS KUNJUNGAN ANDA *</p>
+                <p style="margin:3px 0 0 0;">Semoga lekas sembuh</p>
+            </div>
+        </div>
+    `;
+    
     document.getElementById('printOverlay').style.display = 'block';
     window.print();
-    document.getElementById('printOverlay').style.display = 'none';
+    setTimeout(() => { document.getElementById('printOverlay').style.display = 'none'; }, 100);
 }
 
 function filterTable() {
@@ -339,6 +321,7 @@ function filterTable() {
     const to = document.getElementById('dateTo').value;
     const rows = document.querySelectorAll('.riwayat-row');
     let visible = 0;
+    
     rows.forEach(row => {
         const kasir = row.dataset.kasir || '';
         const tanggal = row.dataset.tanggal || '';
@@ -346,11 +329,14 @@ function filterTable() {
         const matchFrom = !from || tanggal >= from;
         const matchTo = !to || tanggal.substring(0,10) <= to;
         const show = matchQ && matchFrom && matchTo;
+        
         row.style.display = show ? '' : 'none';
         if (show) visible++;
     });
+    
     document.getElementById('rowCount').textContent = visible + ' data';
     document.getElementById('noResults').style.display = visible === 0 ? 'block' : 'none';
+    document.getElementById('riwayatTable').style.display = visible === 0 ? 'none' : '';
 }
 
 function resetFilter() {
@@ -364,15 +350,20 @@ function sortTable(col) {
     sortDir[col] = !sortDir[col];
     const tbody = document.getElementById('tableBody');
     const rows = Array.from(tbody.querySelectorAll('.riwayat-row'));
+    
     rows.sort((a, b) => {
         let va = '', vb = '';
         if (col === 'kasir') { va = a.dataset.kasir; vb = b.dataset.kasir; }
         if (col === 'tanggal') { va = a.dataset.tanggal; vb = b.dataset.tanggal; }
         if (col === 'total') { va = parseFloat(a.dataset.total); vb = parseFloat(b.dataset.total); }
+        
         if (typeof va === 'number') return sortDir[col] ? va-vb : vb-va;
         return sortDir[col] ? va.localeCompare(vb) : vb.localeCompare(va);
     });
+    
     rows.forEach(r => tbody.appendChild(r));
+ 
+    event.currentTarget.querySelector('i').className = sortDir[col] ? 'fas fa-sort-up ml-1' : 'fas fa-sort-down ml-1';
 }
 
 document.getElementById('detailModal').addEventListener('click', e => { if(e.target===document.getElementById('detailModal')) closeDetail(); });

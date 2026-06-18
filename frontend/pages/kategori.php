@@ -47,199 +47,167 @@ $colors = [
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Manajemen Kategori - SIPOLA</title>
+    <title>Manajemen Kategori | SIPOLA</title>
+    
+
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="../css/style.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .card-hover { transition: all .25s cubic-bezier(.4,0,.2,1); }
-        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,.10); }
-        @keyframes slideDown { from { opacity:0; transform:translateY(-16px);} to { opacity:1; transform:translateY(0);} }
-        .toast-anim { animation: slideDown .35s ease forwards; }
-        @keyframes fadeIn { from{opacity:0;transform:scale(.95)} to{opacity:1;transform:scale(1)} }
-        .modal-anim { animation: fadeIn .2s ease forwards; }
-        .search-highlight { background: #fef3c7; border-radius:3px; }
-    </style>
+
+    <link rel="stylesheet" href="../css/style1.css">
+
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
 
-<!-- TOAST -->
 <?php if ($toast): ?>
-<div id="toast" class="toast-anim fixed top-6 right-6 z-[100] flex items-center gap-3 px-5 py-4 rounded-2xl shadow-2xl font-semibold text-sm
-    <?= $toast['type']==='success'?'bg-emerald-500 text-white':($toast['type']==='danger'?'bg-red-500 text-white':'bg-indigo-500 text-white') ?>">
-    <span><?= $toast['type']==='success'?'✅':($toast['type']==='danger'?'<i class="fas fa-trash-alt"></i>':'<i class="fas fa-edit"></i>') ?></span>
-    <?= $toast['msg'] ?>
+<div id="toast" class="toast">
+    <span><?= $toast['type']==='success'?'✅':($toast['type']==='danger'?'<i class="fas fa-trash-alt text-red-500"></i>':'<i class="fas fa-edit text-indigo-500"></i>') ?></span>
+    <?= htmlspecialchars($toast['msg']) ?>
 </div>
-<script>setTimeout(()=>{ const t=document.getElementById('toast'); if(t){t.style.opacity='0';t.style.transition='opacity .4s';setTimeout(()=>t.remove(),400);} },3000);</script>
+<script>
+document.getElementById('toast').style.display = 'flex';
+setTimeout(()=>{ 
+    const t=document.getElementById('toast'); 
+    if(t){
+        t.style.opacity='0';
+        t.style.transition='opacity .4s';
+        setTimeout(()=>t.remove(),400);
+    } 
+},3000);
+</script>
 <?php endif; ?>
 
-<!-- NAVBAR -->
-<nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="relative bg-gradient-to-br from-emerald-500 to-teal-700 w-10 h-10 rounded-xl shadow-md flex items-center justify-center border border-white/20 overflow-hidden group">
-                <div class="absolute -top-3 -right-3 w-8 h-8 bg-white opacity-10 rounded-full blur-sm group-hover:scale-150 transition-transform duration-700"></div>
-                <div class="absolute -bottom-2 -left-2 w-6 h-6 bg-teal-300 opacity-20 rounded-full blur-sm group-hover:scale-150 transition-transform duration-700"></div>
-                <i class="fa-solid fa-capsules text-white text-lg relative z-10 drop-shadow-md transform group-hover:rotate-12 transition-transform duration-300"></i>
-            </div>
-            <div class="flex flex-col">
-                <span class="text-emerald-600 font-black text-xl uppercase tracking-tighter leading-none mt-1">SIPOLA</span>
-                <span class="text-[10px] font-bold text-slate-400 uppercase hidden lg:block mt-0.5">Sistem Informasi Pengelolaan Obat dan Layanan Apotek</span>
-            </div>
-        </div>
-        <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Dashboard</a>
-            <a href="kategori.php" class="text-emerald-600 font-bold border-b-2 border-emerald-600 pb-1">Kategori</a>
-            <a href="supplier.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Supplier</a>
-            <a href="transaksi.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Transaksi</a>
-            <a href="riwayat.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">Riwayat</a>
-            <a href="logout.php" class="text-slate-500 hover:text-red-500 font-medium transition-colors">Logout</a>
-        </div>
-    </div>
-</nav>
+<div class="app-layout">
 
-<main class="max-w-6xl mx-auto px-6 py-10">
+    <?php include 'sidebar.php'; ?>
+    <main class="main-content">
 
-    <!-- HEADER BANNER -->
-    <div class="bg-gradient-to-r from-emerald-600 to-teal-500 rounded-3xl p-8 mb-8 text-white relative overflow-hidden">
-        <div class="absolute -right-8 -top-8 w-48 h-48 bg-white/10 rounded-full"></div>
-        <div class="absolute -right-4 bottom-0 w-28 h-28 bg-white/10 rounded-full"></div>
-        <div class="relative flex justify-between items-center flex-wrap gap-4">
+        <header class="page-header animate-fade">
             <div>
-                <p class="text-emerald-100 text-sm font-semibold tracking-widest uppercase mb-1">Manajemen Data</p>
-                <h1 class="text-4xl font-black mb-2">Kategori Obat</h1>
-                <p class="text-emerald-100 text-sm max-w-md">Kelola dan organisir semua kategori produk obat yang tersedia di apotek dengan mudah.</p>
+                <h1>Kategori Obat</h1>
+                <p>Kelola dan organisir semua kategori produk obat</p>
             </div>
-            <div class="flex gap-4 items-center">
-                <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center min-w-[80px]">
-                    <div class="text-3xl font-black"><?= count($data) ?></div>
-                    <div class="text-xs text-emerald-100 mt-1">Total Kategori</div>
-                </div>
-                <button onclick="openModal('tambah')" class="bg-white text-emerald-700 font-black px-6 py-3 rounded-2xl hover:bg-emerald-50 transition-all shadow-lg flex items-center gap-2">
-                    <span class="text-lg">＋</span> Tambah Kategori
-                </button>
+            <div class="header-actions hidden md:flex">
+                <button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button>
             </div>
-        </div>
-    </div>
+        </header>
 
-    <!-- SEARCH & FILTER BAR -->
-    <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-5 py-4 mb-8 flex gap-3 items-center">
-        <svg class="w-5 h-5 text-slate-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-        </svg>
-        <input id="searchInput" type="text" placeholder="Cari nama atau deskripsi kategori..." oninput="filterKategori()"
-            class="flex-1 outline-none text-slate-700 placeholder-slate-400 text-sm bg-transparent">
-        <span id="countBadge" class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
-            <?= count($data) ?> kategori
-        </span>
-    </div>
-
-    <!-- GRID KATEGORI -->
-    <div id="kategoriGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php foreach($data as $i => $kat):
-            $c = $colors[$i % count($colors)];
-            $icon = $icons[$i % count($icons)];
-            $created = isset($kat['created_at']) ? date('d M Y', strtotime($kat['created_at'])) : '—';
-        ?>
-        <div class="kategori-card card-hover bg-white rounded-3xl border <?= $c['border'] ?> shadow-sm flex flex-col"
-             data-nama="<?= strtolower($kat['nama_kategori']) ?>"
-             data-deskripsi="<?= strtolower($kat['deskripsi'] ?? '') ?>">
-            <!-- TOP -->
-            <div class="<?= $c['bg'] ?> rounded-t-3xl p-5 flex items-center gap-4">
-                <div class="text-4xl"><?= $icon ?></div>
-                <div class="flex-1 min-w-0">
-                    <span class="nama-teks text-lg font-black <?= $c['text'] ?> block truncate"><?= htmlspecialchars($kat['nama_kategori']) ?></span>
-                    <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full mt-1 <?= $c['badge'] ?>">
-                        Dibuat <?= $created ?>
-                    </span>
+        <div class="bg-gradient-to-r from-[var(--jungle-teal)] to-[var(--success)] rounded-[var(--r-xl)] p-8 mb-8 text-white relative overflow-hidden animate-fade" style="animation-delay: 0.1s; animation-fill-mode: both;">
+            <div class="absolute -right-8 -top-8 w-48 h-48 bg-white/10 rounded-full"></div>
+            <div class="absolute -right-4 bottom-0 w-28 h-28 bg-white/10 rounded-full"></div>
+            <div class="relative flex justify-between items-center flex-wrap gap-4">
+                <div>
+                    <h2 class="text-3xl font-black mb-1">Daftar Kategori</h2>
+                    <p class="text-[var(--azure-mist)] text-sm max-w-md opacity-90">Kategorikan obat untuk memudahkan pencarian dan manajemen inventaris apotek.</p>
                 </div>
-            </div>
-            <!-- BODY -->
-            <div class="p-5 flex-1 flex flex-col justify-between gap-4">
-                <p class="deskripsi-teks text-slate-500 text-sm leading-relaxed">
-                    <?= htmlspecialchars($kat['deskripsi'] ?? 'Belum ada deskripsi untuk kategori ini.') ?>
-                </p>
-                <!-- ACTIONS -->
-                <div class="flex gap-2 pt-2 border-t border-slate-100">
-                    <button onclick="openModal('edit', <?= $kat['id'] ?>, `<?= addslashes($kat['nama_kategori']) ?>`, `<?= addslashes($kat['deskripsi'] ?? '') ?>`)"
-                        class="flex-1 flex items-center justify-center gap-1.5 bg-indigo-50 text-indigo-600 py-2.5 rounded-xl text-sm font-bold hover:bg-indigo-100 transition-all">
-                        <i class="fas fa-edit"></i> Edit
-                    </button>
-                    <button onclick="konfirmasiHapus(<?= $kat['id'] ?>, `<?= addslashes($kat['nama_kategori']) ?>`)"
-                        class="flex-1 flex items-center justify-center gap-1.5 bg-red-50 text-red-500 py-2.5 rounded-xl text-sm font-bold hover:bg-red-100 transition-all">
-                        <i class="fas fa-trash-alt"></i> Hapus
+                <div class="flex gap-4 items-center">
+                    <div class="bg-white/20 backdrop-blur rounded-2xl p-4 text-center min-w-[80px]">
+                        <div class="text-3xl font-black"><?= count($data) ?></div>
+                        <div class="text-xs text-[var(--azure-mist)] mt-1 opacity-90">Total Kategori</div>
+                    </div>
+                    <button onclick="openModal('tambah')" class="bg-white text-[var(--jungle-teal)] font-black px-6 py-3 rounded-[var(--r-md)] hover:bg-[var(--mint-cream)] transition-all shadow-lg flex items-center gap-2">
+                        <i class="fas fa-plus"></i> Tambah Kategori
                     </button>
                 </div>
             </div>
         </div>
-        <?php endforeach; ?>
 
-        <!-- EMPTY STATE -->
-        <div id="emptyState" class="col-span-full hidden flex-col items-center justify-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-            <div class="text-6xl mb-4"><i class="fas fa-search"></i></div>
-            <p class="text-slate-500 font-semibold text-lg">Kategori tidak ditemukan</p>
-            <p class="text-slate-400 text-sm mt-1">Coba kata kunci yang berbeda</p>
+        <div class="search-wrap animate-fade" style="animation-delay: 0.2s; animation-fill-mode: both;">
+            <i class="fas fa-search text-slate-400 text-lg"></i>
+            <input id="searchInput" type="text" placeholder="Cari nama atau deskripsi kategori..." oninput="filterKategori()" class="search-input">
+            <span id="countBadge" class="text-xs font-semibold text-slate-400 bg-slate-100 px-3 py-1 rounded-full">
+                <?= count($data) ?> kategori
+            </span>
         </div>
-    </div>
 
-    <?php if (empty($data)): ?>
-    <div class="flex flex-col items-center justify-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
-        <div class="text-6xl mb-4">🏷️</div>
-        <p class="text-slate-500 font-semibold text-lg">Belum ada kategori</p>
-        <p class="text-slate-400 text-sm mt-1 mb-6">Mulai dengan menambahkan kategori pertama Anda</p>
-        <button onclick="openModal('tambah')" class="bg-emerald-600 text-white px-6 py-3 rounded-2xl font-bold hover:bg-emerald-700 transition-all">+ Tambah Kategori</button>
-    </div>
-    <?php endif; ?>
+        <div id="kategoriGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade" style="animation-delay: 0.3s; animation-fill-mode: both;">
+            <?php foreach($data as $i => $kat):
+                $c = $colors[$i % count($colors)];
+                $icon = $icons[$i % count($icons)];
+                $created = isset($kat['created_at']) ? date('d M Y', strtotime($kat['created_at'])) : '—';
+            ?>
+            <div class="card flex flex-col p-0 overflow-hidden"
+                 data-nama="<?= strtolower(htmlspecialchars($kat['nama_kategori'])) ?>"
+                 data-deskripsi="<?= strtolower(htmlspecialchars($kat['deskripsi'] ?? '')) ?>" style="transition: transform .25s ease; border: 1px solid transparent;">
 
-</main>
+                <div class="<?= $c['bg'] ?> p-5 flex items-center gap-4">
+                    <div class="text-4xl opacity-80"><?= $icon ?></div>
+                    <div class="flex-1 min-w-0">
+                        <span class="nama-teks text-lg font-black <?= $c['text'] ?> block truncate"><?= htmlspecialchars($kat['nama_kategori']) ?></span>
+                        <span class="inline-block text-xs font-semibold px-2 py-0.5 rounded-full mt-1 <?= $c['badge'] ?>">
+                            Dibuat <?= $created ?>
+                        </span>
+                    </div>
+                </div>
 
-<!-- MODAL TAMBAH/EDIT -->
-<div id="formModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-lg m-auto rounded-3xl shadow-2xl overflow-hidden modal-anim border-2 border-emerald-400 flex flex-col max-h-[90vh]">
-        <div id="modalHeader" class="bg-gradient-to-r from-emerald-600 to-teal-500 p-6 text-white flex justify-between items-center shrink-0">
-            <div>
-                <h2 id="modalTitle" class="text-2xl font-black">Tambah Kategori</h2>
-                <p class="text-emerald-100 text-sm mt-0.5" id="modalSubtitle">Isi data kategori baru</p>
+                <div class="p-5 flex-1 flex flex-col justify-between gap-4">
+                    <p class="deskripsi-teks text-slate-500 text-sm leading-relaxed">
+                        <?= htmlspecialchars($kat['deskripsi'] ?? 'Belum ada deskripsi untuk kategori ini.') ?>
+                    </p>
+
+                    <div class="flex gap-2 pt-4 border-t border-slate-100 mt-2">
+                        <button onclick="openModal('edit', <?= $kat['id'] ?>, `<?= addslashes(htmlspecialchars($kat['nama_kategori'])) ?>`, `<?= addslashes(htmlspecialchars($kat['deskripsi'] ?? '')) ?>`)"
+                            class="btn btn-secondary flex-1 justify-center">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button onclick="konfirmasiHapus(<?= $kat['id'] ?>, `<?= addslashes(htmlspecialchars($kat['nama_kategori'])) ?>`)"
+                            class="btn btn-danger flex-1 justify-center">
+                            <i class="fas fa-trash-alt"></i> Hapus
+                        </button>
+                    </div>
+                </div>
             </div>
-            <button onclick="closeModal()" class="text-white/80 hover:text-white text-3xl leading-none transition-all hover:scale-110">×</button>
+            <?php endforeach; ?>
+
+
+            <div id="emptyState" class="col-span-full hidden flex-col items-center justify-center py-24 bg-white rounded-3xl border-2 border-dashed border-slate-200">
+                <div class="text-6xl mb-4 text-slate-200"><i class="fas fa-search"></i></div>
+                <p class="text-slate-500 font-semibold text-lg">Kategori tidak ditemukan</p>
+                <p class="text-slate-400 text-sm mt-1">Coba kata kunci yang berbeda</p>
+            </div>
         </div>
-        <form id="formKategori" method="POST" class="p-6 space-y-5 overflow-y-auto grow">
+
+    </main>
+</div>
+
+<div id="formModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
+            <div>
+                <h2 id="modalTitle">Tambah Kategori</h2>
+                <p id="modalSubtitle">Isi data kategori baru</p>
+            </div>
+            <button onclick="closeModal()" class="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        <form id="formKategori" method="POST" class="modal-body">
             <input type="hidden" name="id" id="form_id">
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nama Kategori <span class="text-red-400">*</span></label>
-                <input type="text" name="nama_kategori" id="form_nama" required
-                    class="w-full px-4 py-3.5 border-2 border-slate-200 rounded-2xl outline-none focus:border-emerald-500 transition-colors text-slate-800 font-medium"
-                    placeholder="Contoh: Antibiotik, Vitamin...">
+            <div class="form-group">
+                <label class="form-label">Nama Kategori <span class="text-red-400">*</span></label>
+                <input type="text" name="nama_kategori" id="form_nama" required class="form-control" placeholder="Contoh: Antibiotik, Vitamin...">
             </div>
-            <div>
-                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Deskripsi</label>
-                <textarea name="deskripsi" id="form_deskripsi" rows="4"
-                    class="w-full px-4 py-3.5 border-2 border-slate-200 rounded-2xl outline-none focus:border-emerald-500 transition-colors text-slate-700 resize-none"
-                    placeholder="Jelaskan jenis obat yang masuk kategori ini..."></textarea>
+            <div class="form-group mb-6">
+                <label class="form-label">Deskripsi</label>
+                <textarea name="deskripsi" id="form_deskripsi" rows="4" class="form-control resize-none" placeholder="Jelaskan jenis obat yang masuk kategori ini..."></textarea>
                 <p class="text-xs text-slate-400 mt-1 text-right"><span id="charCount">0</span> karakter</p>
             </div>
-            <div class="flex gap-3 pt-2">
-                <button type="button" onclick="closeModal()" class="flex-1 py-3.5 rounded-2xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">Batal</button>
-                <button type="submit" id="submitBtn" name="tambah" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-500 hover:from-emerald-700 hover:to-teal-600 text-white py-3.5 rounded-2xl font-bold transition-all shadow-lg shadow-emerald-100">
-                    Simpan Kategori
-                </button>
+            <div class="flex gap-3">
+                <button type="button" onclick="closeModal()" class="btn flex-1 justify-center bg-slate-100 text-slate-600 hover:bg-slate-200">Batal</button>
+                <button type="submit" id="submitBtn" name="tambah" class="btn btn-primary flex-1 justify-center text-base">Simpan Kategori</button>
             </div>
         </form>
     </div>
 </div>
 
-<!-- MODAL HAPUS KONFIRMASI -->
-<div id="hapusModal" class="fixed inset-0 hidden z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
-    <div class="bg-white w-full max-w-sm m-auto rounded-3xl shadow-2xl overflow-hidden modal-anim border-2 border-red-300 text-center p-8">
-        <div class="text-5xl mb-4"><i class="fas fa-trash-alt"></i></div>
-        <h3 class="text-xl font-black text-slate-800 mb-2">Hapus Kategori?</h3>
-        <p class="text-slate-500 text-sm mb-1">Anda akan menghapus kategori:</p>
-        <p id="hapusNama" class="font-black text-red-600 text-lg mb-6">—</p>
-        <div class="flex gap-3">
-            <button onclick="closeHapus()" class="flex-1 py-3 rounded-2xl font-bold border-2 border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">Batal</button>
-            <a id="hapusLink" href="#" class="flex-1 py-3 rounded-2xl font-bold bg-red-500 hover:bg-red-600 text-white transition-all text-center">Hapus</a>
+<div id="hapusModal" class="modal-overlay">
+    <div class="modal-box" style="max-width: 400px;">
+        <div class="p-8 text-center">
+            <div class="text-5xl mb-4 text-red-500"><i class="fas fa-trash-alt"></i></div>
+            <h3 class="text-xl font-black text-slate-800 mb-2">Hapus Kategori?</h3>
+            <p class="text-slate-500 text-sm mb-1">Anda akan menghapus kategori:</p>
+            <p id="hapusNama" class="font-black text-red-600 text-lg mb-6">—</p>
+            <div class="flex gap-3">
+                <button onclick="closeHapus()" class="btn flex-1 justify-center bg-slate-100 text-slate-600 hover:bg-slate-200">Batal</button>
+                <a id="hapusLink" href="#" class="btn btn-danger flex-1 justify-center text-center">Hapus</a>
+            </div>
         </div>
     </div>
 </div>
@@ -272,28 +240,28 @@ function openModal(mode, id='', nama='', deskripsi='') {
         updateCharCount();
     }
 
-    modal.classList.remove('hidden');
+    modal.classList.add('active');
     document.getElementById('form_nama').focus();
 }
 
-function closeModal() { document.getElementById('formModal').classList.add('hidden'); }
+function closeModal() { document.getElementById('formModal').classList.remove('active'); }
 
 function konfirmasiHapus(id, nama) {
     document.getElementById('hapusNama').textContent = nama;
     document.getElementById('hapusLink').href = `kategori.php?hapus=${id}`;
-    document.getElementById('hapusModal').classList.remove('hidden');
+    document.getElementById('hapusModal').classList.add('active');
 }
-function closeHapus() { document.getElementById('hapusModal').classList.add('hidden'); }
+function closeHapus() { document.getElementById('hapusModal').classList.remove('active'); }
 
 function updateCharCount() {
     const ta = document.getElementById('form_deskripsi');
-    document.getElementById('charCount').textContent = ta.value.length;
+    if(ta) document.getElementById('charCount').textContent = ta.value.length;
 }
-document.getElementById('form_deskripsi').addEventListener('input', updateCharCount);
+document.getElementById('form_deskripsi')?.addEventListener('input', updateCharCount);
 
 function filterKategori() {
     const q = document.getElementById('searchInput').value.toLowerCase().trim();
-    const cards = document.querySelectorAll('.kategori-card');
+    const cards = document.querySelectorAll('#kategoriGrid .card');
     let visible = 0;
     cards.forEach(card => {
         const nama = card.dataset.nama || '';
@@ -307,11 +275,16 @@ function filterKategori() {
     if (empty) empty.style.display = visible === 0 ? 'flex' : 'none';
 }
 
-
 document.getElementById('formModal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
 document.getElementById('hapusModal').addEventListener('click', function(e){ if(e.target===this) closeHapus(); });
 
 document.addEventListener('keydown', e => { if(e.key==='Escape'){closeModal();closeHapus();} });
+
+const cards = document.querySelectorAll('#kategoriGrid .card');
+cards.forEach(card => {
+    card.addEventListener('mouseenter', () => { card.style.transform = 'translateY(-4px)'; card.style.boxShadow = 'var(--shadow-lg)'; card.style.borderColor = 'var(--frozen-water)'; });
+    card.addEventListener('mouseleave', () => { card.style.transform = 'translateY(0)'; card.style.boxShadow = 'var(--shadow)'; card.style.borderColor = 'transparent'; });
+});
 </script>
 </body>
 </html>

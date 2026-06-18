@@ -1,7 +1,6 @@
 <?php
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
+
+session_start();
 
 if (!isset($_SESSION['login'])) {
     header("Location: login.php");
@@ -10,228 +9,432 @@ if (!isset($_SESSION['login'])) {
 // testing
 require_once __DIR__ . '/../../backend/models/Obat.php';
 
-$obatModel = new Obat();
+$apiBaseUrl = "http://localhost/TUBES_KPL_NULL/backend/api";
 
-// Handle search
-$keyword = $_GET['keyword'] ?? '';
-if (!empty($keyword)) {
-    $data = $obatModel->search($keyword);
-} else {
-    $data = $obatModel->getAll();
+$data_kategori = [];
+$res_kat = file_get_contents("$apiBaseUrl/kategori.php");
+if ($res_kat !== false) {
+    $resp_kat = json_decode($res_kat, true);
+    if (isset($resp_kat['status']) && $resp_kat['status'] === true) {
+        $data_kategori = $resp_kat['data'];
+    }
 }
 
-// ⬇️ TAMBAHKAN INI UNTUK PASTIKAN $data SELALU ADA ⬇️
-if (!isset($data) || $data === false) {
-    $data = [];
+$data_supplier = [];
+$res_sup = file_get_contents("$apiBaseUrl/supplier.php");
+if ($res_sup !== false) {
+    $resp_sup = json_decode($res_sup, true);
+    if (isset($resp_sup['status']) && $resp_sup['status'] === true) {
+        $data_supplier = $resp_sup['data'];
+    }
 }
-// ⬆️ TAMBAHKAN INI ⬆️
+
+if (isset($_POST['tambah'])) {
+    $postFields = [
+        'nama_obat' => $_POST['nama_obat'],
+        'kategori' => $_POST['kategori_text'] ?? '', // legacy text
+        'id_kategori' => $_POST['id_kategori'] ?? '',
+        'id_supplier' => $_POST['id_supplier'] ?? '',
+        'stok' => $_POST['stok'],
+        'harga' => $_POST['harga']
+    ];
+
+    if (isset($_FILES['gambar']) && $_FILES['gambar']['error'] == 0) {
+        $postFields['gambar'] = new CURLFile($_FILES['gambar']['tmp_name'], $_FILES['gambar']['type'], $_FILES['gambar']['name']);
+    }
+
+    $ch = curl_init();
+    curl_setopt($ch, CURLOPT_URL, "$apiBaseUrl/obat.php");
+    curl_setopt($ch, CURLOPT_POST, 1);
+    curl_setopt($ch, CURLOPT_POSTFIELDS, $postFields);
+    curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+    $result = curl_exec($ch);
+    curl_close($ch);
+
+    header("Location: dashboard.php");
+    exit;
+}
+
+if (isset($_POST['update'])) {
+    $postData = [
+        'id' => $_POST['id'],
+        'nama_obat' => $_POST['nama_obat'],
+        'kategori' => $_POST['kategori_text'] ?? '',
+        'id_kategori' => $_POST['id_kategori'] ?? '',
+        'id_supplier' => $_POST['id_supplier'] ?? '',
+        'stok' => $_POST['stok'],
+        'harga' => $_POST['harga']
+    ];
+    
+    $options = [
+        'http' => [
+            'method'  => 'PUT',
+            'header'  => "Content-Type: application/json\r\n",
+            'content' => json_encode($postData)
+        ]
+    ];
+    $context  = stream_context_create($options);
+    file_get_contents("$apiBaseUrl/obat.php", false, $context);
+
+    header("Location: dashboard.php");
+    exit;
+}
+
+if (isset($_GET['hapus'])) {
+    $id = (int) $_GET['hapus'];
+
+    $options = [
+        'http' => [
+            'method'  => 'DELETE',
+            'header'  => "Content-Type: application/json\r\n",
+            'content' => json_encode(['id' => $id])
+        ]
+    ];
+    $context  = stream_context_create($options);
+    file_get_contents("$apiBaseUrl/obat.php", false, $context);
+
+    header("Location: dashboard.php");
+    exit;
+}
+
+$keyword = "";
+$kategori_filter = "";
+$data = [];
+
+$result = file_get_contents("$apiBaseUrl/obat.php");
+if ($result !== false) {
+    $response = json_decode($result, true);
+    if (isset($response['status']) && $response['status'] === true) {
+        $allData = $response['data'];
+        
+        if (isset($_GET['search'])) {
+            $keyword_raw = $_GET['keyword'] ?? '';
+            $keyword = strtolower(htmlspecialchars($keyword_raw));
+            $kategori_filter = $_GET['kategori_filter'] ?? '';
+            
+            $kategori_filter_nama = '';
+            if (!empty($kategori_filter)) {
+                foreach($data_kategori as $kat) {
+                    if ($kat['id'] == $kategori_filter) {
+                        $kategori_filter_nama = strtolower($kat['nama_kategori']);
+                        break;
+                    }
+                }
+            }
+            
+            foreach($allData as $item) {
+                $matchKeyword = empty($keyword) || strpos(strtolower($item['nama_obat']), $keyword) !== false;
+                
+                $matchKategori = true;
+                if (!empty($kategori_filter)) {
+                    $isIdMatch = (!empty($item['id_kategori']) && $item['id_kategori'] == $kategori_filter);
+                    $isNameMatch = (!empty($kategori_filter_nama) && strtolower($item['kategori'] ?? '') == $kategori_filter_nama);
+                    $matchKategori = $isIdMatch || $isNameMatch;
+                }
+                
+                if ($matchKeyword && $matchKategori) {
+                    $data[] = $item;
+                }
+            }
+        } else {
+            $data = $allData;
+        }
+    }
+}
+
+// Calculate summary stats
+$total_obat = count($data);
+$total_stok = array_reduce($data, fn($sum, $item) => $sum + $item['stok'], 0);
+$stok_menipis = array_reduce($data, fn($sum, $item) => $sum + ($item['stok'] < 10 ? 1 : 0), 0);
 
 ?>
-
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard</title>
+    <title>Dashboard | SIPOLA</title>
+    
+    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom Style with variables -->
+    <link rel="stylesheet" href="../css/style1.css">
+    
+    <!-- Icons & Fonts -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Force modal override vs Tailwind */
+        .modal-overlay {
+            display: flex !important;
+            opacity: 0 !important;
+            pointer-events: none !important;
+            transition: opacity 0.3s ease !important;
+        }
+        .modal-overlay.active {
+            opacity: 1 !important;
+            pointer-events: auto !important;
+        }
+    </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
+<body>
 
-<!-- NAVBAR -->
-<nav class="bg-white border-b border-slate-200 px-6 py-4 sticky top-0 z-30 shadow-sm">
-    <div class="max-w-6xl mx-auto flex justify-between items-center">
-        <div class="flex items-center gap-3">
-            <div class="bg-emerald-600 p-1.5 rounded-lg">
-                <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.628.282a2 2 0 01-1.806 0l-.628-.282a6 6 0 00-3.86-.517l-2.387.477a2 2 0 00-1.022.547l-.311.467a2 2 0 001.664 3.108h15.428a2 2 0 001.664-3.108l-.311-.467zM8 10V7a4 4 0 118 0v3M8 9h8" />
-                </svg>
-            </div>
-            <span class="text-emerald-600 font-black text-xl uppercase tracking-tighter">
-                Apotek<span class="text-slate-800">Sehat</span>
-            </span>
-        </div>
-        <div class="flex items-center gap-6">
-            <a href="dashboard.php" class="text-emerald-600 font-bold border-b-2 border-emerald-600 pb-1">
-                Dashboard
-            </a>
-            <a href="transaksi.php" class="text-slate-500 hover:text-emerald-600 font-medium transition-colors">
-                Transaksi
-            </a>
-            <a href="../../backend/routes/logout.php" class="text-slate-500 hover:text-red-500 font-medium transition-colors">
-                Logout
-            </a>
-        </div>
-    </div>
-</nav>
+<div class="app-layout">
+    
+    <!-- INCLUDE SHARED SIDEBAR -->
+    <?php include 'sidebar.php'; ?>
 
-<!-- MAIN -->
-<main class="max-w-6xl mx-auto px-6 mt-10">
-    <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-200 mb-10">
-        <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        
+        <!-- PAGE HEADER -->
+        <header class="page-header animate-fade">
             <div>
-                <h2 class="text-2xl font-bold text-slate-800">Inventaris Obat</h2>
-                <p class="text-slate-500">Cari dan kelola ketersediaan stok obat.</p>
+                <h1>Dashboard</h1>
+                <p>Ringkasan sistem inventaris obat dan apotek</p>
             </div>
-            <div class="mt-4 md:mt-0 px-4 py-1 bg-slate-100 text-slate-500 rounded-full text-[10px] font-black uppercase tracking-[0.2em]">
-                <?= isset($data) ? count($data) : 0; ?> DATA
+            <div class="header-actions hidden md:flex">
+                <button class="btn-icon" title="Notifications"><i class="fas fa-bell"></i></button>
+            </div>
+        </header>
+
+        <!-- STAT CARDS -->
+        <div class="stat-grid animate-fade" style="animation-delay: 0.1s; animation-fill-mode: both;">
+            <div class="stat-card primary">
+                <i class="fas fa-pills stat-icon"></i>
+                <div class="stat-label">Total Jenis Obat</div>
+                <div class="stat-value"><?= $total_obat ?></div>
+            </div>
+            <div class="stat-card">
+                <i class="fas fa-boxes-stacked stat-icon text-teal-200"></i>
+                <div class="stat-label text-slate-500">Total Stok Fisik</div>
+                <div class="stat-value text-teal-800"><?= $total_stok ?></div>
+            </div>
+            <div class="stat-card <?= $stok_menipis > 0 ? 'bg-red-50' : '' ?>">
+                <i class="fas fa-triangle-exclamation stat-icon <?= $stok_menipis > 0 ? 'text-red-200' : 'text-teal-200' ?>"></i>
+                <div class="stat-label <?= $stok_menipis > 0 ? 'text-red-500' : 'text-slate-500' ?>">Stok Menipis</div>
+                <div class="stat-value <?= $stok_menipis > 0 ? 'text-red-600' : 'text-teal-800' ?>"><?= $stok_menipis ?></div>
             </div>
         </div>
 
-        <!-- SEARCH FORM -->
-        <form method="GET" action="">
-            <div class="flex flex-col md:flex-row gap-4">
-                <input type="text" name="keyword" value="<?= htmlspecialchars($keyword ?? '') ?>" 
-                    class="flex-1 px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-2xl focus:ring-2 focus:ring-emerald-500 outline-none"
-                    placeholder="Masukkan nama obat...">
-                <button type="submit" class="bg-emerald-600 text-white px-10 py-3.5 rounded-2xl font-bold hover:bg-emerald-700 transition-all">
-                    Cari Obat
-                </button>
-                <button type="button" onclick="openModal()" class="bg-indigo-600 text-white px-10 py-3.5 rounded-2xl font-bold hover:bg-indigo-700 transition-all">
-                    + Tambah
-                </button>
-            </div>
+        <!-- SEARCH WRAP -->
+        <form method="GET" class="search-wrap animate-fade" style="animation-delay: 0.2s; animation-fill-mode: both;">
+            <i class="fas fa-search text-slate-400 text-lg"></i>
+            <input 
+                type="text" 
+                name="keyword" 
+                value="<?= isset($_GET['keyword']) ? htmlspecialchars($_GET['keyword']) : '' ?>" 
+                class="search-input" 
+                placeholder="Cari nama obat..."
+            >
+            <div style="width: 1px; height: 24px; background: var(--frozen-water); margin: 0 5px;"></div>
+            <select name="kategori_filter" class="search-input" style="flex: 0 0 auto; width: auto; cursor: pointer;">
+                <option value="">Semua Kategori</option>
+                <?php foreach($data_kategori as $kat): ?>
+                    <option value="<?= $kat['id'] ?>" <?= (isset($_GET['kategori_filter']) && $_GET['kategori_filter'] == $kat['id']) ? 'selected' : '' ?>>
+                        <?= htmlspecialchars($kat['nama_kategori']) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+            <button type="submit" name="search" class="btn btn-secondary hidden sm:flex">Cari</button>
+            <button type="button" class="btn btn-primary whitespace-nowrap" onclick="openModal()">
+                <i class="fas fa-plus"></i> Tambah Obat
+            </button>
         </form>
-    </div>
 
-    <!-- CARD GRID -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <?php if (isset($data) && count($data) > 0): ?>
-            <?php foreach ($data as $obat): ?>
-                <div class="bg-white rounded-3xl p-6 border border-slate-200 shadow-sm hover:shadow-lg transition-all">
-                    <?php if (!empty($obat['gambar'])): ?>
-                        <img src="../uploads/<?= $obat['gambar']; ?>" class="w-full h-48 object-cover rounded-2xl mb-5">
-                    <?php endif; ?>
-                    <div class="flex justify-between items-start mb-5">
-                        <div>
-                            <h3 class="text-xl font-bold text-slate-800"><?= htmlspecialchars($obat['nama_obat']); ?></h3>
-                            <p class="text-slate-400 text-sm mt-1"><?= htmlspecialchars($obat['kategori']); ?></p>
+        <!-- DATA GRID -->
+        <div class="obat-grid animate-fade" style="animation-delay: 0.3s; animation-fill-mode: both;">
+            <?php if(count($data) > 0): ?>
+                <?php foreach($data as $obat): ?>
+                    <div class="obat-card">
+                        
+                        <?php if(!empty($obat['gambar'])): ?>
+                            <img src="../uploads/<?= htmlspecialchars($obat['gambar']) ?>" class="obat-card-img" alt="Gambar Obat">
+                        <?php else: ?>
+                            <div class="obat-card-no-img"><i class="fas fa-capsules"></i></div>
+                        <?php endif; ?>
+                        
+                        <div class="obat-card-body">
+                            <div class="flex justify-between items-start mb-2">
+                                <div>
+                                    <h3 class="obat-card-name"><?= htmlspecialchars($obat['nama_obat']) ?></h3>
+                                    <p class="obat-card-cat"><?= htmlspecialchars($obat['kategori']) ?></p>
+                                </div>
+                                <div class="stok-badge <?= $obat['stok'] < 10 ? 'low' : '' ?>">
+                                    Stok <?= $obat['stok'] ?>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-4">
+                                <span class="obat-card-price-label">Harga Jual</span>
+                                <div class="obat-card-price">Rp <?= number_format($obat['harga'], 0, ',', '.') ?></div>
+                            </div>
+                            
+                            <div class="flex gap-2">
+                                <button onclick="openEditModal(
+                                    '<?= $obat['id'] ?>',
+                                    '<?= addslashes(htmlspecialchars($obat['nama_obat'])) ?>',
+                                    '<?= $obat['id_kategori'] ?? '' ?>',
+                                    '<?= $obat['id_supplier'] ?? '' ?>',
+                                    '<?= $obat['stok'] ?>',
+                                    '<?= $obat['harga'] ?>'
+                                )" class="btn btn-secondary flex-1 justify-center"><i class="fas fa-pen"></i> Edit</button>
+                                
+                                <a href="dashboard.php?hapus=<?= $obat['id'] ?>" 
+                                   onclick="return confirm('Yakin hapus obat ini?')" 
+                                   class="btn btn-danger justify-center" style="padding:10px 14px;"><i class="fas fa-trash"></i></a>
+                            </div>
                         </div>
-                        <div class="bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-xs font-black uppercase">
-                            Stok <?= $obat['stok']; ?>
-                        </div>
+
                     </div>
-                    <div class="mb-6">
-                        <p class="text-slate-400 text-sm mb-1">Harga</p>
-                        <h2 class="text-3xl font-black text-emerald-600">Rp <?= number_format($obat['harga']); ?></h2>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <div class="col-span-full flex flex-col items-center justify-center py-20 bg-white rounded-2xl border-2 border-dashed border-slate-200">
+                    <div class="w-16 h-16 bg-slate-50 text-slate-300 rounded-full flex items-center justify-center text-2xl mb-4">
+                        <i class="fas fa-pills"></i>
                     </div>
-                    <div class="flex gap-3">
-                        <button onclick="openEditModal('<?= $obat['id']; ?>', '<?= addslashes($obat['nama_obat']); ?>', '<?= addslashes($obat['kategori']); ?>', '<?= $obat['stok']; ?>', '<?= $obat['harga']; ?>')"
-                            class="flex-1 text-center bg-indigo-50 text-indigo-600 py-3 rounded-2xl font-bold hover:bg-indigo-100 transition-all">
-                            Edit
-                        </button>
-                        <a href="../../backend/routes/obat.php?action=delete&id=<?= $obat['id']; ?>" onclick="return confirm('Yakin hapus obat?')"
-                            class="flex-1 text-center bg-red-50 text-red-600 py-3 rounded-2xl font-bold hover:bg-red-100 transition-all">
-                            Hapus
-                        </a>
-                    </div>
+                    <p class="text-slate-500 font-medium">Data obat tidak ditemukan.</p>
                 </div>
-            <?php endforeach; ?>
-        <?php else: ?>
-            <div class="col-span-full text-center py-20 bg-white rounded-3xl border border-slate-200">
-                <p class="text-slate-400 text-lg">Tidak ada data obat</p>
-            </div>
-        <?php endif; ?>
-    </div>
-</main>
-
-<!-- MODAL TAMBAH -->
-<div id="modal" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-    <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl">
-        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white flex justify-between items-center">
-            <div>
-                <h2 class="text-2xl font-black">Tambah Obat</h2>
-                <p class="text-emerald-100 text-sm">Tambahkan data obat baru</p>
-            </div>
-            <button onclick="closeModal()" class="text-3xl">×</button>
+            <?php endif; ?>
         </div>
-        <form method="POST" action="../../backend/routes/obat.php?action=create" enctype="multipart/form-data" class="p-6 space-y-5">
+
+    </main>
+</div>
+
+<!-- ADD MODAL -->
+<div id="modal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header">
             <div>
-                <label class="block text-sm font-bold mb-2">Gambar Obat</label>
-                <input type="file" name="gambar" accept="image/*" class="w-full">
+                <h2>Tambah Obat</h2>
+                <p>Tambahkan data obat ke dalam inventaris</p>
             </div>
-            <div>
-                <label class="block text-sm font-bold mb-2">Nama Obat</label>
-                <input type="text" name="nama_obat" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+            <button onclick="closeModal()" class="modal-close"><i class="fas fa-times"></i></button>
+        </div>
+        
+        <form method="POST" enctype="multipart/form-data" class="modal-body">
+            
+            <div class="form-group">
+                <label class="form-label">Gambar Obat</label>
+                <input type="file" name="gambar" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:px-4 file:py-2 file:rounded-xl file:border-0 file:bg-emerald-50 file:text-teal-700 file:font-semibold hover:file:bg-emerald-100 transition-all cursor-pointer">
             </div>
-            <div>
-                <label class="block text-sm font-bold mb-2">Kategori</label>
-                <input type="text" name="kategori" class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+
+            <div class="form-group">
+                <label class="form-label">Nama Obat</label>
+                <input type="text" name="nama_obat" placeholder="Contoh: Paracetamol 500mg" required class="form-control">
             </div>
-            <div class="grid grid-cols-2 gap-4">
+
+            <div class="grid grid-cols-2 gap-4 form-group">
                 <div>
-                    <label class="block text-sm font-bold mb-2">Stok</label>
-                    <input type="number" name="stok" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+                    <label class="form-label">Kategori</label>
+                    <select name="id_kategori" required class="form-control">
+                        <option value="">-- Pilih --</option>
+                        <?php foreach($data_kategori as $kat): ?>
+                            <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2">Harga</label>
-                    <input type="number" name="harga" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+                    <label class="form-label">Supplier</label>
+                    <select name="id_supplier" class="form-control">
+                        <option value="">-- Pilih --</option>
+                        <?php foreach($data_supplier as $sup): ?>
+                            <option value="<?= $sup['id'] ?>"><?= htmlspecialchars($sup['nama_supplier']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl font-bold">Simpan Obat</button>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="form-label">Stok Awal</label>
+                    <input type="number" name="stok" placeholder="0" required class="form-control">
+                </div>
+                <div>
+                    <label class="form-label">Harga (Rp)</label>
+                    <input type="number" name="harga" placeholder="0" required class="form-control">
+                </div>
+            </div>
+
+            <button type="submit" name="tambah" class="btn btn-primary w-full justify-center py-3 text-base">Simpan Obat Baru</button>
+
         </form>
     </div>
 </div>
 
-<!-- MODAL EDIT -->
-<div id="editModal" class="fixed inset-0 hidden z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm px-4">
-    <div class="bg-white w-full max-w-2xl rounded-3xl overflow-hidden shadow-2xl">
-        <div class="bg-gradient-to-r from-emerald-600 to-teal-600 p-6 text-white flex justify-between items-center">
+<!-- EDIT MODAL -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal-box">
+        <div class="modal-header" style="background: linear-gradient(135deg, var(--warning), #f4a261);">
             <div>
-                <h2 class="text-2xl font-black">Edit Obat</h2>
-                <p class="text-emerald-100 text-sm">Ubah data obat</p>
+                <h2>Edit Obat</h2>
+                <p>Ubah detail informasi obat</p>
             </div>
-            <button onclick="closeEditModal()" class="text-3xl">×</button>
+            <button onclick="closeEditModal()" class="modal-close"><i class="fas fa-times"></i></button>
         </div>
-        <form method="POST" action="../../backend/routes/obat.php?action=edit" enctype="multipart/form-data" class="p-6 space-y-5">
+        
+        <form method="POST" class="modal-body">
             <input type="hidden" name="id" id="edit_id">
-            <div>
-                <label class="block text-sm font-bold mb-2">Gambar Baru</label>
-                <input type="file" name="gambar" accept="image/*" class="w-full">
+
+            <div class="form-group">
+                <label class="form-label">Nama Obat</label>
+                <input type="text" name="nama_obat" id="edit_nama" required class="form-control">
             </div>
-            <div>
-                <label class="block text-sm font-bold mb-2">Nama Obat</label>
-                <input type="text" name="nama_obat" id="edit_nama" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
-            </div>
-            <div>
-                <label class="block text-sm font-bold mb-2">Kategori</label>
-                <input type="text" name="kategori" id="edit_kategori" class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
-            </div>
-            <div class="grid grid-cols-2 gap-4">
+
+            <div class="grid grid-cols-2 gap-4 form-group">
                 <div>
-                    <label class="block text-sm font-bold mb-2">Stok</label>
-                    <input type="number" name="stok" id="edit_stok" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+                    <label class="form-label">Kategori</label>
+                    <select name="id_kategori" id="edit_id_kategori" required class="form-control">
+                        <option value="">-- Pilih --</option>
+                        <?php foreach($data_kategori as $kat): ?>
+                            <option value="<?= $kat['id'] ?>"><?= htmlspecialchars($kat['nama_kategori']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-bold mb-2">Harga</label>
-                    <input type="number" name="harga" id="edit_harga" required class="w-full px-4 py-3 border border-slate-200 rounded-2xl">
+                    <label class="form-label">Supplier</label>
+                    <select name="id_supplier" id="edit_id_supplier" class="form-control">
+                        <option value="">-- Pilih --</option>
+                        <?php foreach($data_supplier as $sup): ?>
+                            <option value="<?= $sup['id'] ?>"><?= htmlspecialchars($sup['nama_supplier']) ?></option>
+                        <?php endforeach; ?>
+                    </select>
                 </div>
             </div>
-            <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 rounded-2xl font-bold">Update Obat</button>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <label class="form-label">Update Stok</label>
+                    <input type="number" name="stok" id="edit_stok" required class="form-control">
+                </div>
+                <div>
+                    <label class="form-label">Update Harga (Rp)</label>
+                    <input type="number" name="harga" id="edit_harga" required class="form-control">
+                </div>
+            </div>
+
+            <button type="submit" name="update" class="btn btn-primary w-full justify-center py-3 text-base" style="background: var(--warning); color: var(--dark-text);">Simpan Perubahan</button>
         </form>
     </div>
 </div>
 
+<script src="../js/modal.js"></script>
 <script>
-function openModal() {
-    document.getElementById('modal').classList.remove('hidden');
-}
-function closeModal() {
-    document.getElementById('modal').classList.add('hidden');
-}
-function openEditModal(id, nama, kategori, stok, harga) {
+function openEditModal(id, nama, id_kategori, id_supplier, stok, harga) {
     document.getElementById('edit_id').value = id;
     document.getElementById('edit_nama').value = nama;
-    document.getElementById('edit_kategori').value = kategori;
+    document.getElementById('edit_id_kategori').value = id_kategori;
+    document.getElementById('edit_id_supplier').value = id_supplier;
     document.getElementById('edit_stok').value = stok;
     document.getElementById('edit_harga').value = harga;
-    document.getElementById('editModal').classList.remove('hidden');
+    document.getElementById('editModal').classList.add('active');
 }
 function closeEditModal() {
-    document.getElementById('editModal').classList.add('hidden');
+    document.getElementById('editModal').classList.remove('active');
 }
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') { closeModal(); closeEditModal(); }
+});
 </script>
 </body>
 </html>
