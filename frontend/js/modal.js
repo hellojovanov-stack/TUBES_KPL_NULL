@@ -6,17 +6,13 @@ const MODAL_STATE = {
 let modalState = MODAL_STATE.CLOSED;
 
 function openModal() {
-
     modalState = MODAL_STATE.OPEN;
-
-    document.getElementById("modal")
-        .style.display = "block";
+    let m = document.getElementById("modal") || document.getElementById("formModal");
+    if (m) m.classList.add('active');
 }
 
 function closeModal() {
-
     modalState = MODAL_STATE.CLOSED;
-
-    document.getElementById("modal")
-        .style.display = "none";
+    let m = document.getElementById("modal") || document.getElementById("formModal");
+    if (m) m.classList.remove('active');
 }
