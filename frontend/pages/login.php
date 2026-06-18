@@ -1,4 +1,5 @@
 <?php
+<<<<<<< HEAD
 session_start();
 
 $message = "";
@@ -42,6 +43,17 @@ if (isset($_POST['login'])) {
             }
         }
     }
+=======
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+if (isset($_SESSION['login'])) {
+
+    header("Location: dashboard.php");
+    exit;
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
 }
 ?>
 
@@ -51,6 +63,7 @@ if (isset($_POST['login'])) {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
+<<<<<<< HEAD
     <title>Login SIPOLA</title>
 
     <script src="https://cdn.tailwindcss.com"></script>
@@ -59,6 +72,15 @@ if (isset($_POST['login'])) {
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+=======
+    <title>Login Apotek</title>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <link rel="stylesheet" href="../css/style.css">
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
 </head>
 
 <body class="bg-slate-50 text-slate-800">
@@ -69,22 +91,40 @@ if (isset($_POST['login'])) {
 
         <div class="text-center mb-8">
 
+<<<<<<< HEAD
             <div class="relative bg-gradient-to-br from-emerald-500 to-teal-700 w-20 h-20 rounded-3xl shadow-[0_12px_24px_-8px_rgba(16,185,129,0.6)] flex items-center justify-center mx-auto mb-5 border border-white/20 overflow-hidden group transform hover:-translate-y-1 transition-all duration-300">
                 <div class="absolute -top-6 -right-6 w-16 h-16 bg-white opacity-10 rounded-full blur-md group-hover:scale-125 transition-transform duration-700"></div>
                 <div class="absolute -bottom-4 -left-4 w-12 h-12 bg-teal-300 opacity-20 rounded-full blur-md group-hover:scale-125 transition-transform duration-700"></div>
                 <i class="fa-solid fa-capsules text-white text-[36px] relative z-10 drop-shadow-lg transform group-hover:rotate-12 transition-transform duration-300"></i>
+=======
+            <div class="bg-emerald-100 w-20 h-20 rounded-2xl flex items-center justify-center mx-auto mb-4 rotate-3">
+
+                <svg class="w-10 h-10 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.628.282a2 2 0 01-1.806 0l-.628-.282a6 6 0 00-3.86-.517l-2.387.477a2 2 0 00-1.022.547l-.311.467a2 2 0 001.664 3.108h15.428a2 2 0 001.664-3.108l-.311-.467zM8 10V7a4 4 0 118 0v3M8 9h8" />
+
+                </svg>
+
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
             </div>
 
             <h1 class="text-3xl font-extrabold text-slate-800 tracking-tight">
                 Login
             </h1>
 
+<<<<<<< HEAD
             <p class="text-slate-500 mt-2 font-medium leading-relaxed">
                 SIPOLA - Sistem Informasi Pengelolaan<br>Obat dan Layanan Apotek
+=======
+            <p class="text-slate-500 mt-2">
+                Apotek Sehat - Management System
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
             </p>
 
         </div>
 
+<<<<<<< HEAD
         <form method="POST">
 
             <div class="space-y-5">
@@ -137,10 +177,64 @@ if (isset($_POST['login'])) {
             </div>
 
         </form>
+=======
+        <form onsubmit="handleLogin(event)">
+
+    <div class="space-y-5">
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                Username
+            </label>
+
+            <input
+                type="text"
+                id="username"
+                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                placeholder="Masukkan username"
+                required
+            >
+        </div>
+
+        <div>
+            <label class="block text-sm font-semibold text-slate-700 mb-1.5">
+                Password
+            </label>
+
+            <input
+                type="password"
+                id="password"
+                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl"
+                placeholder="Masukkan password"
+                required
+            >
+        </div>
+
+        <button
+            type="submit"
+            id="loginBtn"
+            class="w-full bg-emerald-600 text-white font-bold py-3.5 rounded-xl"
+        >
+            Masuk ke Sistem
+        </button>
+
+        <p
+            id="message"
+            class="text-center text-sm font-medium text-red-500"
+        ></p>
+
+    </div>
+
+</form>
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
 
     </div>
 
 </div>
+<<<<<<< HEAD
 
+=======
+<script src="../js/login.js"></script>
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
 </body>
 </html>

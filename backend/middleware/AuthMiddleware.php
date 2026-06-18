@@ -1,5 +1,6 @@
 <?php
 
+<<<<<<< HEAD
 class AuthMiddleware
 {
     /**
@@ -52,3 +53,15 @@ class AuthMiddleware
     }
 }
 ?>
+=======
+class AuthMiddleware {
+
+    public static function check() {
+        session_start();
+        if(!isset($_SESSION['login'])) {
+            header("Location: ../frontend/pages/login.php");
+            exit;
+        }
+    }
+}
+>>>>>>> aa57d194d678ea3e8d159ee62948300d359ec6f2
