@@ -6,6 +6,8 @@ if (!isset($_SESSION['login'])) {
     header("Location: login.php");
     exit;
 }
+// testing
+require_once __DIR__ . '/../../backend/models/Obat.php';
 
 $apiBaseUrl = "http://localhost/TUBES_KPL_NULL/backend/api";
 
