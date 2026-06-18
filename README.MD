@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 # CLO2_TB_KPL — Sistem Manajemen Apotek
 
 ## Deskripsi Singkat
