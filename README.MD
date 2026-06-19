@@ -65,7 +65,7 @@ Aplikasi sistem manajemen apotek berbasis web (PHP + MySQL) yang mendukung penge
 | Fatan | Parameterization / Generics | API | `helpers/ParameterizedRepository.php`, `helpers/DbC.php` |
 
 ## Unit Testing
-Jalankan semua 105 test tanpa PHPUnit:
+Test tanpa PHP/Unit:
 ```bash
 php tests/RunAllTests.php
 ```
