@@ -60,7 +60,7 @@ Aplikasi sistem manajemen apotek berbasis web (PHP + MySQL) yang mendukung penge
 |------|----------|----------|-------------------|
 | Steven | Code Reuse / Library | Runtime Configuration | `helpers/Performance.php`, `helpers/PerformanceLogger.php`, `models/Database.php` |
 | Jovanov | API | Parameterization / Generics | `api/*.php` (8 endpoint), `helpers/ParameterizedRepository.php` |
-| Hafiz | Automata | Table-driven construction | `frontend/js/modal.js` (UI state), `helpers/TableDrivenValidator.php` |
+| Hafiz | Automata | Table-driven construction | `frontend/js/modal.js` (UI state), `frontend/pages/dashboard.php,kategori.php,sidebar.php,transaksi.php,supplier.php,riwayat.php,` `frontend/css/style1.css` `helpers/TableDrivenValidator.php` |
 | Zakaria | Table-driven construction | Runtime Configuration | `helpers/TableDrivenValidator.php`, `middleware/AuthMiddleware.php` |
 | Fatan | Parameterization / Generics | API | `helpers/ParameterizedRepository.php`, `helpers/DbC.php` |
 
